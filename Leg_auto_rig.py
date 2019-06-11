@@ -7,6 +7,18 @@ import maya.cmds as cmds
 # cmds.rename("joint4", "ikj_ankle")
 # cmds.rename("joint5", "ikj_ball")
 
+# Create locators for leg and foot positions
+cmds.spaceLocator(name='COG', position=(0,56.647,2.321))
+cmds.spaceLocator(name='hip', position=(5.334,52.917,2.396))
+cmds.spaceLocator(name='knee', position=(6.351,32.140,1.757))
+cmds.spaceLocator(name='ankle', position=(6.351,4.747,-2.785))
+cmds.spaceLocator(name='ball', position=(6.351,0.018,6.030))
+cmds.spaceLocator(name='toe', position=(6.351,0.067,10.598))
+
+
+
+
+'''
 cmds.ikHandle(n="ikh_leg", sj="ikj_hip", ee="ikj_ankle", sol="ikRPsolver")
 cmds.ikHandle(n="ikh_ball", sj="ikj_ankle", ee="ikj_ball", sol="ikSCsolver")
 cmds.ikHandle(n="ikh_toe", sj="ikj_ball", ee="ikj_toe", sol="ikSCsolver")
@@ -122,3 +134,87 @@ cmds.connectAttr('mdNode_LegStretch.outputX', 'mdNode_AnkleStretch.input1X')
 
 cmds.connectAttr('mdNode_KneeStretch.outputX', 'ikj_knee.tx')
 cmds.connectAttr('mdNode_AnkleStretch.outputX', 'ikj_ankle.tx')
+
+# setting up foot, creating utility nodes and adding attributes
+
+cmds.select('ctrl_leg')
+cmds.addAttr( shortName='Roll_Break', longName='Roll_Break', defaultValue=0, k=True)
+cmds.addAttr( shortName='Foot_Roll', longName='Foot_Roll', defaultValue=0, k=True)
+
+cmds.shadingNode("condition", asUtility=True, n='conNode_ballRoll')
+cmds.shadingNode("condition", asUtility=True, n='conNode_negBallRoll')
+cmds.shadingNode("condition", asUtility=True, n='conNode_toeRoll')
+cmds.shadingNode("plusMinusAverage", asUtility=True, n='pmaNode_ballRoll')
+cmds.shadingNode("plusMinusAverage", asUtility=True, n='pmaNode_toeRoll')
+cmds.shadingNode("condition", asUtility=True, n='conNode_heelRoll')
+cmds.setAttr('pmaNode_toeRoll.operation', 2)
+cmds.setAttr ("conNode_toeRoll.operation", 2)
+cmds.setAttr ("conNode_toeRoll.colorIfFalseR", 0)
+cmds.setAttr ("conNode_toeRoll.colorIfFalseG", 0)
+cmds.setAttr ("conNode_toeRoll.colorIfFalseB", 0)
+cmds.setAttr ('conNode_heelRoll.operation', 4)
+cmds.setAttr('conNode_heelRoll.colorIfFalseB', 0)
+cmds.setAttr('conNode_heelRoll.colorIfFalseR', 0)
+cmds.setAttr('conNode_heelRoll.colorIfFalseG', 0)
+cmds.setAttr("pmaNode_ballRoll.operation", 2)
+cmds.setAttr ("conNode_negBallRoll.operation", 3)
+cmds.setAttr ("conNode_ballRoll.operation", 3)
+
+#setting up toe
+
+cmds.connectAttr('ctrl_leg.Foot_Roll', 'conNode_toeRoll.firstTerm')
+cmds.connectAttr('ctrl_leg.Foot_Roll', 'conNode_toeRoll.colorIfTrueR')
+cmds.connectAttr('ctrl_leg.Roll_Break', 'conNode_toeRoll.secondTerm')
+cmds.connectAttr('ctrl_leg.Roll_Break', 'conNode_toeRoll.colorIfFalseR')
+cmds.connectAttr('ctrl_leg.Roll_Break', 'pmaNode_toeRoll.input1D[1]')
+cmds.connectAttr('conNode_toeRoll.outColorR', 'pmaNode_toeRoll.input1D[0]')
+cmds.connectAttr('pmaNode_toeRoll.output1D', 'grp_toe.rx')
+
+# setting up heel
+
+cmds.connectAttr('ctrl_leg.Foot_Roll', 'conNode_heelRoll.firstTerm')
+cmds.connectAttr('ctrl_leg.Foot_Roll', 'conNode_heelRoll.colorIfTrueR')
+cmds.connectAttr('conNode_heelRoll.outColorR', 'grp_heel.rotateX')
+
+# setting up ball, and toe flap
+
+cmds.connectAttr('ctrl_leg.Foot_Roll', 'conNode_ballRoll.firstTerm')
+cmds.connectAttr('ctrl_leg.Foot_Roll', 'conNode_ballRoll.colorIfTrueR')
+cmds.connectAttr('ctrl_leg.Roll_Break', 'conNode_negBallRoll.secondTerm')
+cmds.connectAttr('ctrl_leg.Roll_Break', 'conNode_negBallRoll.colorIfTrueR')
+cmds.connectAttr('conNode_negBallRoll.outColorR', 'pmaNode_ballRoll.input1D[0]')
+cmds.connectAttr('grp_toe.rx', 'pmaNode_ballRoll.input1D[1]')
+cmds.connectAttr('pmaNode_ballRoll.output1D', 'grp_ball.rx')
+cmds.connectAttr('conNode_ballRoll.outColorR', 'conNode_negBallRoll.firstTerm')
+cmds.connectAttr('conNode_ballRoll.outColorR', 'conNode_negBallRoll.colorIfFalseR')
+
+cmds.select('ctrl_leg')
+cmds.addAttr( shortName='Toe_Flap', longName='Toe_Flap', defaultValue=0, k=True)
+cmds.connectAttr('ctrl_leg.Toe_Flap', 'grp_flap.rx')
+
+# set up Piviot for banck and twist
+
+cmds.circle(name='ctrl_footPivot', normal=(0,0,1), radius=(1))
+
+ballPos = cmds.xform('grp_ball', q=True, t=True, ws=True)
+cmds.xform('ctrl_footPivot', t=ballPos)
+
+cmds.group(n='grp_ctrl_footPivot', empty=True)
+
+cmds.parent('grp_ctrl_footPivot', 'ctrl_footPivot')
+
+cmds.parent('ctrl_footPivot', 'ctrl_leg')
+cmds.makeIdentity( apply=True )
+
+cmds.connectAttr('grp_ctrl_footPivot.translate', 'grp_footPivot.rotatePivot')
+
+cmds.xform('grp_ctrl_footPivot', t=ballPos)
+
+
+cmds.select('ctrl_leg')
+cmds.addAttr( shortName='Foot_Pivot', longName='Foot_Pivot', defaultValue=0, k=True)
+cmds.addAttr( shortName='Foot_Bank', longName='Foot_Bank', defaultValue=0, k=True)
+cmds.connectAttr('ctrl_leg.Foot_Pivot', 'grp_footPivot.ry')
+cmds.connectAttr('ctrl_leg.Foot_Bank', 'grp_footPivot.rz')
+
+'''
