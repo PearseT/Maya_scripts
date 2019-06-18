@@ -18,6 +18,8 @@ cmds.spaceLocator(name='toe', position=(6.351,0.067,10.598))
 
 
 
+cmds.select(kneeJnt, kneeLoc)
+cmds.align(x='mid' ,alignToLead=True)
 '''
 cmds.ikHandle(n="ikh_leg", sj="ikj_hip", ee="ikj_ankle", sol="ikRPsolver")
 cmds.ikHandle(n="ikh_ball", sj="ikj_ankle", ee="ikj_ball", sol="ikSCsolver")
