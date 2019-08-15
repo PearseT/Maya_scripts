@@ -1,6 +1,6 @@
 import maya.cmds as cmds
 
-un=''
+un='Arm_'
 numberOfBones=3
 
 # will need to add if statment to test for selected and joint
@@ -28,8 +28,8 @@ cmds.parent(endWJoint, endLoc, relative=True)
 
 
 sGrp = cmds.group(empty=True, name= un + 'stretchPlaneGrp')
-cmds.delete(cmds.parentConstraint(startLoc, endLoc, sGrp))
-cmds.delete(cmds.orientConstraint(startLoc, sGrp))
+cmds.delete(cmds.parentConstraint(startLoc, sGrp))
+# cmds.delete(cmds.orientConstraint(startLoc, sGrp))
 
 #create NURBS plane and CV curve. Group everything into the new sGrp
 
@@ -54,7 +54,7 @@ cmds.dropoffLocator( 1.0, 1.0, sWire[0] )
 cmds.select( sWire[1] + '.u[1]', r=True )
 cmds.dropoffLocator( 1.0, 1.0, sWire[0] )
 
-#skin wire to bone drivesr, connect rotation of locators to drop off locators twist
+#skin wire to bone drivers, connect rotation of locators to drop off locators twist
 
 
 cmds.connectAttr(startLoc[0]+'.rotateX',sWire[0]+'.wireLocatorTwist[0]')
@@ -65,7 +65,7 @@ cmds.skinCluster(startWJoint, endWJoint, sWire[1], maximumInfluences=1, toSelect
 #crating follicles on sPlane and joints
 
 sJointsCollection = []
-folGrp = cmds.group(empty=True, name= un + 'fillicleGrp')
+folGrp = cmds.group(empty=True, name= un + 'follicleGrp')
 cmds.parent(folGrp, sGrp)
 
 for x in range (numberOfBones):
@@ -91,30 +91,43 @@ for x in range (numberOfBones):
 
     cmds.parent(folTrans,folGrp)
 
-#
-# #creating nodes for stretching bones
-# sCurveShape = cmds.listRelatives(sCurve, shapes=True)[0]
-# sCurveInfo = cmds.createNode('curveInfo', name='SCurveInfo')
-# cmds.rename(sCurveInfo, 'SCurveInfo')
-# cmds.connectAttr(sCurveShape+'.worldSpace[0]', sCurveInfo+'.inputCurve')
-#
-# jointScale= cmds.createNode('multiplyDivide', name='sJointScale')
-# cmds.setAttr(jointScale+'.operation',2)
-# cmds.setAttr(jointScale+'input2X',len)
-# cmds.connectAttr(sCurveInfo+'.distance', jointScale+'.input1X')
-#
-# #connecting up nodes to bones
-# for joint in sJointsCollection:
-#     cmds.connectAttr(jointScale+'.outputX', joint+'.scaleX')
+
+#creating nodes for stretching bones
+sCurveShape = cmds.listRelatives(sCurve, shapes=True)[0]
+sCurveInfo = cmds.createNode('curveInfo', name='SCurveInfo')
+cmds.rename(sCurveInfo, 'SCurveInfo')
+cmds.connectAttr(sCurveShape+'.worldSpace[0]', sCurveInfo+'.inputCurve')
+
+jointScale = cmds.createNode('multiplyDivide', name='sJointScale')
+cmds.setAttr(jointScale+'.operation',2)
+cmds.setAttr(jointScale+'.input2X',len)
+cmds.connectAttr(sCurveInfo+'.arcLength', jointScale+'.input1X')
+
+
+#connecting up nodes to bones
+for joint in sJointsCollection:
+    cmds.connectAttr(jointScale+'.outputX', joint+'.scaleX')
+
+
+#creating a variable for the base wire of the wire deformer
+sBaseWire = cmds.listConnections(sWire[0]+'.baseWire', destination=False, source=True)[0]
+
+#creating group inorder to help organisation and prevent double transforms
+sRigGrp = cmds.group(empty=True, name= un + 'stretchPlaneRigGrp')
+cmds.delete(cmds.parentConstraint(startLoc, sRigGrp))
+
+cmds.parent(sRigGrp, sGrp)
+cmds.parent(sPlane[0], sBaseWire, startLoc, endLoc, sRigGrp)
+cmds.setAttr(startWJoint + ".visibility", False )
+cmds.setAttr(endWJoint + ".visibility", False )
+
+#Connecting end locators to driving joints -will have to do this properly in the main script
+
+cmds.connectAttr(endJoint + '.rotateX', endLoc[0] + '.rotateX')
 
 '''
-visability of start wire joint
+for V0.2
+make squash nodes
 
-
-group all parts except curve and Nhair/bones
------
-make squash adn stretch nodes
-
-connect up squash and stretch nodes
 
 '''
