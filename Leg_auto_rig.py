@@ -35,18 +35,18 @@ anklePos = cmds.xform('ankle', query=True, worldSpace=True, translation=True)
 ballPos = cmds.xform('ball', query=True, worldSpace=True, translation=True)
 toePos = cmds.xform('toe', query=True, worldSpace=True, translation=True)
 
-pvKneeLoc = cmds.spaceLocator(n='KneeLocTemp')
-pvCtrlLoc = cmds.spaceLocator(n='pvKneeCtrlLoc')
-cmds.parent(pvCtrlLoc,pvKneeLoc)
+# pvKneeLoc = cmds.spaceLocator(n='KneeLocTemp')
+# pvCtrlLoc = cmds.spaceLocator(n='pvKneeCtrlLoc')
+# cmds.parent(pvCtrlLoc,pvKneeLoc)
+#
+# cmds.delete(cmds.pointConstraint('hip', 'ankle', pvKneeLoc))
+# cmds.select(pvKneeLoc, 'knee')
+# cmds.align(x='mid' ,alignToLead=True)
+# cmds.align(y='mid' ,alignToLead=True)
+# cmds.move(0,0,20, pvCtrlLoc, localSpace=True)
+# cmds.select(clear=True)
 
-cmds.delete(cmds.pointConstraint('hip', 'ankle', pvKneeLoc))
-cmds.select(pvKneeLoc, 'knee')
-cmds.align(x='mid' ,alignToLead=True)
-cmds.align(y='mid' ,alignToLead=True)
-cmds.move(0,0,20, pvCtrlLoc, localSpace=True)
-cmds.select(clear=True)
-
-# make bind joints
+# --make bind joints
 pelvisJnt = cmds.joint(name='pelvis', absolute=True, radius=2, position=pelvisPos)
 
 hipJnt = cmds.joint(name= si + un + 'hip', absolute=True, radius=2, position=hipPos)
@@ -55,24 +55,23 @@ ankleJnt = cmds.joint(name= si + un + 'ankle', absolute=True, radius=2, position
 ballJnt = cmds.joint(name= si + un + 'ball', absolute=True, radius=2, position=ballPos)
 toeJnt = cmds.joint(name= si + un + 'toe', absolute=True, radius=2, position=toePos)
 
-cmds.select(hipJnt, kneeJnt, ankleJnt, ballJnt, toeJnt)
-cmds.joint(edit=True, orientJoint='xyz', secondaryAxisOrient='yup' )
-
+cmds.select(hipJnt)
+cmds.joint(edit=True, children=True, orientJoint='xzy', secondaryAxisOrient='xdown' )
 cmds.select(clear=True)
 
-#make IK joints
-pvHipJnt = cmds.joint(name= si + un + 'pvHip', absolute=True, radius=2, position=hipPos)
-pvKneeJnt = cmds.joint(name= si + un + 'pvKnee', absolute=True, radius=2, position=kneePos)
-pvAnkleJnt = cmds.joint(name= si + un + 'pvAnkle', absolute=True, radius=2, position=anklePos)
-pvBallJnt = cmds.joint(name= si + un + 'pvBall', absolute=True, radius=2, position=ballPos)
-pvToeJnt = cmds.joint(name= si + un + 'pvToe', absolute=True, radius=2, position=toePos)
-
-cmds.select(pvHipJnt, pvKneeJnt, pvAnkleJnt, pvBallJnt, pvToeJnt)
-cmds.joint(edit=True, orientJoint='xyz', secondaryAxisOrient='yup' )
-
-ik_handle = cmds.ikHandle(startJoint=pvHipJnt, endEffector=pvAnkleJnt, name='LegIkRPsolver_ikh', sol = 'ikRPsolver')
-
-# cmds.delete(cmds.aimConstraint(kneeJnt, kneeLocTemp, aimVector=(0,0,1)))
+# --make IK joints
+# pvHipJnt = cmds.joint(name= si + un + 'pvHip', absolute=True, radius=2, position=hipPos)
+# pvKneeJnt = cmds.joint(name= si + un + 'pvKnee', absolute=True, radius=2, position=kneePos)
+# pvAnkleJnt = cmds.joint(name= si + un + 'pvAnkle', absolute=True, radius=2, position=anklePos)
+# pvBallJnt = cmds.joint(name= si + un + 'pvBall', absolute=True, radius=2, position=ballPos)
+# pvToeJnt = cmds.joint(name= si + un + 'pvToe', absolute=True, radius=2, position=toePos)
+#
+# cmds.select(pvHipJnt, pvKneeJnt, pvAnkleJnt, pvBallJnt, pvToeJnt)
+# cmds.joint(edit=True, orientJoint='xyz', secondaryAxisOrient='yup' )
+#
+# ik_handle = cmds.ikHandle(startJoint=pvHipJnt, endEffector=pvAnkleJnt, name='LegIkRPsolver_ikh', sol = 'ikRPsolver')
+#
+# cmds.delete(cmds.aimConstraint(kneeJnt, kneeLocTemp, aimVector=(0,0,1), worldUpVector=hipJnt))
 
 # when createing the knee aim ctrl , constrain between hip and ankle , del, then aim constraint to the knee bone so i can be suer there won't be any popping
 # i can use this to set the offset on the polevectro leg as well
