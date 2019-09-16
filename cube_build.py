@@ -1,9 +1,11 @@
 
-import maya.cmds as cmds
+def make_fancy_cube (**kwargs):
+    name = kwargs.setdefault('name', 'Mr.Cube')
+    size = kwargs.setdefault('size', 10 )
+    return name, size
 
-cmds.polySphere(name='Mr_sphear')
-cmds.move(0,10,0)
 
-cmds.polyCube()
 
-cmds.move(0,-5,0, 'Mr_sphear', r=True)
+g_name, g_size = make_fancy_cube(name = 'tom')
+print 'name;' + g_name
+print 'size;' + str(g_size)
