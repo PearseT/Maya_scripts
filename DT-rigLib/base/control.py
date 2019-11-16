@@ -27,6 +27,7 @@ class Control:
         :param rotate_to: str, reference object for rotation
         :param scale: scale value for size of ctrls
         :param lock_channels: list( str ), list of channels on control to be locked
+        :return: None
         """
         # variables
         ctrl_object = None
@@ -46,7 +47,7 @@ class Control:
 
             ctrl_object = cmds.circle(name=prefix + '_ctl', constructionHistory=False, normal=[1, 0, 0], radius=scale)[
                 0]
-            add_shape = cmds.circle(name=prefix + '_ctl2', cconstructionHistory=False, normal=[0, 0, 1], radius=scale)[
+            add_shape = cmds.circle(name=prefix + '_ctl2', constructionHistory=False, normal=[0, 0, 1], radius=scale)[
                 0]
             cmds.parent(cmds.listRelatives(add_shape, shapes=1), ctrl_object, relative=1, shape=1)
             cmds.delete(add_shape)
@@ -57,7 +58,7 @@ class Control:
                                       normal=circle_normal,
                                       radius=scale)[0]
 
-        ctrl_offset = cmds.group(name=prefix + 'Offset_grp', empty=1)
+        ctrl_offset = cmds.group(name=prefix + '_offset_grp', empty=1)
         cmds.parent(ctrl_object, ctrl_offset)
 
         # set control colour

@@ -1,3 +1,5 @@
+"""create stretch plain from 2 bones"""
+
 import maya.cmds as cmds
 
 
@@ -8,14 +10,23 @@ def align(target, source):
     return matrix
 
 
-def make_stretch_plane(**kwargs):
-    # still need to make my doc string
+def make_stretch_plane(
+        prefix='',
+        start_joint=cmds.ls(selection=True)[0],
+        end_joint=cmds.listRelatives(start_joint)[0],
+        number_of_bones=3,
+        stretch_len=cmds.getAttr(end_joint + '.translateX')
+         ):
+    """
+    :param prefix: str, name of objects
+    :param start_joint: str, start point of stretch plane and parent bone
+    :param end_joint: str, end point of stretch plane (right now its just the child of the start joint)
+    :param number_of_bones: float, how many bones will be placed along the length of the plane
+    :param stretch_len: float, the length of the plane, from start joint to end joint
+    :return: list[], containing all stretch joints for skinning
+    """
 
-    prefix = kwargs.setdefault('prefix', '')
-    start_joint = kwargs.setdefault('startjoint', cmds.ls(selection=True)[0])
-    end_joint = kwargs.setdefault('endjoint', cmds.listRelatives(start_joint)[0])
-    number_of_bones = kwargs.setdefault('number_of_bones', 3)
-    stretch_len = cmds.getAttr(end_joint + '.translateX')  # TODO need to get actual distance between points for spine
+    # TODO need to get actual distance between points for spine
 
     start_point = cmds.xform(start_joint, query=True, worldSpace=True, translation=True)
     end_point = cmds.xform(end_joint, query=True, worldSpace=True, translation=True)
@@ -46,7 +57,8 @@ def make_stretch_plane(**kwargs):
     cmds.delete(s_plane, constructionHistory=True)
 
     s_curve = cmds.curve(degree=1, point=[start_point, end_point])
-    s_curve = cmds.rename(s_curve, prefix + 'stretchCurve')  # If named at the creation time, the shape node doesn't get renamed
+    s_curve = cmds.rename(s_curve,
+                          prefix + 'stretchCurve')  # If named at the creation time, the shape node doesn't get renamed
 
     cmds.parent(start_loc, end_loc, s_plane[0], s_curve, s_grp)
 
@@ -73,7 +85,6 @@ def make_stretch_plane(**kwargs):
     cmds.parent(fol_grp, s_grp)
 
     for x in range(number_of_bones):
-
         fol_shape = cmds.createNode("follicle")
         fol_trans = cmds.listRelatives(fol_shape, parent=True)[0]
         fol_trans = cmds.rename(fol_trans, prefix + "follicle_{:02d}".format(x + 1))
@@ -129,6 +140,7 @@ def make_stretch_plane(**kwargs):
     cmds.connectAttr(end_joint + '.rotateZ', end_loc[0] + '.rotateZ')  # TODO: add if statment for elbow/wrist rotations
     cmds.parent(s_rig_grp, start_joint)
 
+    return s_joints_collection
 if __name__ == '__main__':
     make_stretch_plane()
     '''
