@@ -12,8 +12,8 @@ def align(target, source):
 
 def make_stretch_plane(
         prefix='',
-        start_joint=cmds.ls(selection=True)[0],
-        end_joint=cmds.listRelatives(start_joint)[0],
+        start_joint =cmds.ls(selection=True)[0],
+        end_joint =cmds.listRelatives(start_joint)[0],
         number_of_bones=3,
         stretch_len=cmds.getAttr(end_joint + '.translateX')
          ):

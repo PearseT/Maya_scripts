@@ -18,9 +18,11 @@ toePos = (0,0,-0.5)
 # footInnerPos =()
 # footOuterPos =()
 
+leg_positions = [COG, hipPos,kneePos, anklePos, ballPos, toePos]
 
 
-#make template joints
+
+#make template joints - this should be a class i can call from to build my "real leg"
 hipJntTemp = cmds.joint(name= side + prefix + 'hip', absolute=True, radius=2, position=hipPos)
 kneeJntTemp = cmds.joint(name= side + prefix + 'knee', absolute=True, radius=2, position=kneePos)
 ankleJntTemp = cmds.joint(name= side + prefix + 'ankle', absolute=True, radius=2, position=anklePos)
@@ -28,6 +30,25 @@ ballJntTemp = cmds.joint(name= side + prefix + 'ball', absolute=True, radius=2, 
 toeJntTemp = cmds.joint(name= side + prefix + 'toe', absolute=True, radius=2, position=toePos)
 
 
+midLoc = cmds.spaceLocator(name='legMidPoint_loc')[0]
+aimLoc = cmds.spaceLocator(name ='_legAimPoint_loc')[0]
+cmds.parent(midLoc, aimLoc)
+cmds.pointConstraint()
+
+pvDirectionCtrl = cmds.curve(d=1, p=[(-0.124602, 0, -1.096506), (-0.975917, 0, -1.036319), (-0.559059, 0, -0.944259),
+                                     (-0.798049, 0, -0.798033), (-1.042702, 0, -0.431934), (-1.128672, 0, 0),
+                                     (-1.042702, 0, 0.431934), (-0.798049, 0, 0.798033), (-0.560906, 0, 0.946236),
+                                     (-0.975917, 0, 1.036319), (-0.124602, 0, 1.09650), (-0.537718, 0, 0.349716),
+                                     (-0.440781, 0, 0.788659), (-0.652776, 0, 0.652998), (-0.853221, 0, 0.353358),
+                                     (-0.923366, 0, 0), (-0.853221, 0, -0.353358), (-0.652776, 0, -0.652998),
+                                     (-0.439199, 0, -0.785581), (-0.537718, 0, -0.349716), (-0.124602, 0, -1.096506)],
+                             n=un + 'PvLegDirection_ctrl')
+
+# make IK joints
+
+#make Fk/pv joints + stretch nodes
+
+#buuld node network for merging ik fk, set controls
 
 # ---------old code, remove when finalising
 #
