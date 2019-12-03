@@ -1,4 +1,3 @@
-
 import maya.cmds as cmds
 
 cmds.select(clear=True)
@@ -18,20 +17,28 @@ toePos = (0,0,-0.5)
 # footInnerPos =()
 # footOuterPos =()
 
-leg_positions = [COG, hipPos,kneePos, anklePos, ballPos, toePos]
+leg_positions = (COG, hipPos, kneePos, anklePos, ballPos, toePos)
+var = (hip ='', knee='')
+name  = ('hip', 'upper_leg' )
+
+for i in range(len(leg_positions)):
+    if i<5
+        var[i] = cmds.joint(name=side + prefix + 'temp' + name[i], absolute=True, radius=2, position=leg_positions[i])
+    elif
+        var[i] = cmds.spaceLocator(name=side + prefix + 'temp' + name[i], absolute=True, radius=2, position=leg_positions[i])
 
 
 
-#make template joints - this should be a class i can call from to build my "real leg"
-hipJntTemp = cmds.joint(name= side + prefix + 'hip', absolute=True, radius=2, position=hipPos)
-kneeJntTemp = cmds.joint(name= side + prefix + 'knee', absolute=True, radius=2, position=kneePos)
-ankleJntTemp = cmds.joint(name= side + prefix + 'ankle', absolute=True, radius=2, position=anklePos)
-ballJntTemp = cmds.joint(name= side + prefix + 'ball', absolute=True, radius=2, position=ballPos)
-toeJntTemp = cmds.joint(name= side + prefix + 'toe', absolute=True, radius=2, position=toePos)
 
+# make template joints - this should be a class i can call from to build my "real leg"
+hipJntTemp = cmds.joint(name=side + prefix + 'hip', absolute=True, radius=2, position=hipPos)
+kneeJntTemp = cmds.joint(name=side + prefix + 'knee', absolute=True, radius=2, position=kneePos)
+ankleJntTemp = cmds.joint(name=side + prefix + 'ankle', absolute=True, radius=2, position=anklePos)
+ballJntTemp = cmds.joint(name=side + prefix + 'ball', absolute=True, radius=2, position=ballPos)
+toeJntTemp = cmds.joint(name=side + prefix + 'toe', absolute=True, radius=2, position=toePos)
 
 midLoc = cmds.spaceLocator(name='legMidPoint_loc')[0]
-aimLoc = cmds.spaceLocator(name ='_legAimPoint_loc')[0]
+aimLoc = cmds.spaceLocator(name='_legAimPoint_loc')[0]
 cmds.parent(midLoc, aimLoc)
 cmds.pointConstraint()
 
@@ -46,9 +53,9 @@ pvDirectionCtrl = cmds.curve(d=1, p=[(-0.124602, 0, -1.096506), (-0.975917, 0, -
 
 # make IK joints
 
-#make Fk/pv joints + stretch nodes
+# make Fk/pv joints + stretch nodes
 
-#buuld node network for merging ik fk, set controls
+# buuld node network for merging ik fk, set controls
 
 # ---------old code, remove when finalising
 #
